@@ -40,9 +40,10 @@ async function run(){
         //     res.send(result)
         // })
 
+
         app.post('/users', async(req,res) =>{
             const user = req.body;
-            const result = await userCollection.insertOne(user);
+            const result = userCollection.insertOne(user);
             res.send(result)
           })
 
@@ -61,7 +62,7 @@ async function run(){
         //   })
 
 
-        app.get('/users/data', async (req,res) =>{
+        app.get('/users/data/', async (req,res) =>{
             const userEmail = req.query.email;
             console.log(userEmail)
             const query = {email: userEmail};
@@ -113,12 +114,12 @@ async function run(){
         app.put('/aboutUpdate/:id',async (req,res) =>{
             const id = req.params.id;
             const filter = { _id: ObjectId(id)};
-            const post = req.body;
-            const option = {upsert:true}
+            const user = req.body;
+            const option = {upsert : true}
             const updatedPost = {
                 $set: {
-                    name: post.name,
-                    email:post.email,
+                    // name: post.name,
+                    // email:post.email,
                     university:post.university,
                     address: post.address
                 }
