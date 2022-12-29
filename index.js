@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 5000
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 require('dotenv').config();
 
@@ -19,7 +19,63 @@ console.log(uri)
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
+async function run(){
 
+    try{
+
+        const postsCollection = client.db('social-site').collection('social-post');
+
+        //sending post on DB
+        app.post('/posts', async (req,res) =>{
+            const posts = req.body;
+            console.log(posts)
+            const result = await postsCollection.insertOne(posts)
+            res.send(result)
+        })
+
+        //getting posts from DB
+
+        app.get('/posts', async (req,res) =>{
+            const posts = await postsCollection.find({ }, {"_id": 1}).sort({_id:-1}).toArray()
+            res.send(posts)
+        })
+
+        app.put('/posts/:id',async (req,res) =>{
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id)};
+            const post = req.body;
+            const option = {upsert:true}
+            const updatedPost = {
+                $set: {
+                    userName: post.userName,
+                    comment:post.comment,
+                    like:post.like
+                }
+            }
+            const result = await postsCollection.updateOne(filter,updatedPost,option);
+            res.send(result)
+        })
+
+        app.get('/trending', async (req,res) =>{
+            const trending = await postsCollection.find().limit(3).sort({like:-1}).toArray();
+            res.send(trending)
+        })
+
+        app.get('/posts/:id',async (req,res) =>{
+            const id = req.params.id;
+            const query = { _id: ObjectId(id)};
+            const post = await postsCollection.findOne(query);
+            res.send(post)
+          })
+    }
+
+    catch {
+
+    }
+
+
+}
+run().catch(console.log())
 
 
 app.get('/', (req,res) =>{
