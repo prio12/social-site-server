@@ -42,22 +42,48 @@ async function run(){
 
         app.post('/users', async(req,res) =>{
             const user = req.body;
-            const result = userCollection.insertOne(user);
+            const result = await userCollection.insertOne(user);
             res.send(result)
           })
 
-          app.get('/users', async(req,res) =>{
-            const query ={};
-            const users = await userCollection.find(query).toArray();
-            res.send(users)
-          })
+        //   app.get('/users', async(req,res) =>{
+        //     const query ={};
+        //     const users = await userCollection.find(query).toArray();
+        //     res.send(users)
+        //   })
 
-          app.get('/users/admin/:email', async (req,res) =>{
-            const email = req.params.email;
-            const query ={email}
+        //   app.get('/users/about/:email', async (req,res) =>{
+        //     const email = req.params.email;
+        //     console.log(email)
+        //     const query ={email: email}
+        //     const user = await userCollection.findOne(query);
+        //     res.send(user)
+        //   })
+
+
+        app.get('/users/data', async (req,res) =>{
+            const userEmail = req.query.email;
+            console.log(userEmail)
+            const query = {email: userEmail};
             const user = await userCollection.findOne(query);
+            console.log(user)
             res.send(user)
-          })
+        })
+
+        app.get('/users', async(req,res) => {
+            const query = {};
+            const result = await userCollection.find(query).toArray()
+            res.send(result)
+        })
+
+
+
+        // app.get('/users/about/:email', async (req,res) =>{
+        //     const emailId = req.query.email;
+        //     const query = {email: emailId}
+        //     const result = await userCollection.findOne(query)
+        //     res.send(result)
+        // })
 
 
         //getting posts from DB
@@ -80,6 +106,24 @@ async function run(){
                 }
             }
             const result = await postsCollection.updateOne(filter,updatedPost,option);
+            res.send(result)
+        })
+
+
+        app.put('/aboutUpdate/:id',async (req,res) =>{
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id)};
+            const post = req.body;
+            const option = {upsert:true}
+            const updatedPost = {
+                $set: {
+                    name: post.name,
+                    email:post.email,
+                    university:post.university,
+                    address: post.address
+                }
+            }
+            const result = await userCollection.updateOne(filter,updatedPost,option);
             res.send(result)
         })
 
