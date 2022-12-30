@@ -62,14 +62,13 @@ async function run(){
         //   })
 
 
-        app.get('/users/data/', async (req,res) =>{
-            const userEmail = req.query.email;
-            console.log(userEmail)
-            const query = {email: userEmail};
-            const user = await userCollection.findOne(query);
-            console.log(user)
-            res.send(user)
-        })
+       app.get("/usersQueryEmail/", async (req, res) => {
+      const emailQuery = req.query.email;
+      const query = { email: emailQuery };
+      const user = await userCollection.find(query).toArray();
+      console.log(user);
+      res.send(user);
+    });
 
         app.get('/users', async(req,res) => {
             const query = {};
@@ -90,7 +89,7 @@ async function run(){
         //getting posts from DB
 
         app.get('/posts', async (req,res) =>{
-            const posts = await postsCollection.find({ }, {"_id": 1}).sort({_id:1}).toArray()
+            const posts = await postsCollection.find({ }, {"_id": 1}).sort({_id:-1}).toArray()
             res.send(posts)
         })
 
@@ -111,22 +110,23 @@ async function run(){
         })
 
 
-        app.put('/aboutUpdate/:id',async (req,res) =>{
-            const id = req.params.id;
-            const filter = { _id: ObjectId(id)};
-            const user = req.body;
-            const option = {upsert : true}
-            const updatedPost = {
-                $set: {
-                    // name: post.name,
-                    // email:post.email,
-                    university:post.university,
-                    address: post.address
-                }
-            }
-            const result = await userCollection.updateOne(filter,updatedPost,option);
-            res.send(result)
-        })
+      app.put("/usersQueryEmail/", async (req, res) => {
+      const emailQuery = req.query.email;
+      const query = { email: emailQuery };
+      const post = req.body;
+      console.log(post)
+      const option = { upsert: true };
+      const updatedPost = {
+        $set: {
+          name: post.name,
+          // not need the email
+          university: post.university,
+          address: post.address,
+        },
+      };
+      const result = await userCollection.updateOne(query, updatedPost, option);
+      res.send(result);
+    });
 
         app.get('/trending', async (req,res) =>{
             const trending = await postsCollection.find().limit(3).sort({like:-1}).toArray();
